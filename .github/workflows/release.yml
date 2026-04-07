@@ -1,0 +1,36 @@
+name: Specific Service Tags
+
+on:
+  push:
+    branches:
+      - v1-dev
+
+jobs:
+  create-tags:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create and Push Individual Tags
+        run: |
+          # Define the services to tag
+          SERVICES=("auth" "common" "config" "gateway")
+          VERSION="1.0.0"
+
+          # Configure git for pushing
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          for service in "${SERVICES[@]}"; do
+            TAG_NAME="${service}-${VERSION}"
+            echo "Creating tag: $TAG_NAME"
+            
+            # Create the tag locally
+            git tag $TAG_NAME
+            
+            # Push the tag to GitHub
+            git push origin $TAG_NAME
+          done
